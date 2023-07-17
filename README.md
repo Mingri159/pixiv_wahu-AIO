@@ -3,6 +3,7 @@
 说明：本项目修改自 [danzou1ge6/pixiv_wahu (github.com)](https://github.com/danzou1ge6/pixiv_wahu)
 
 - 介绍：[PixivWahu ， Pixiv 收藏管理工具](https://www.bilibili.com/read/cv17549666)
+- 获取 Pixiv **refresh_token**，参考：https://www.adunm.top/posts/dcedddd5/
 
 **相关**：
 
@@ -12,6 +13,8 @@
 - 安装Node.js，[Node.js (nodejs.org)](https://nodejs.org/en)
 - 安装前端依赖，` npm install`
 - 分别双击【start backend.bat】【start yarn quasar dev.sh】启动后端和前端；
+- 将获取到的`refresh_token`放在`dev_stuff`文件夹下，命名`refresh_token.txt`;
+
 
 ## 更新内容
 
