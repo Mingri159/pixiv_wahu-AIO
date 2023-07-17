@@ -1,0 +1,37 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+console_output_style = "count"
+log_cli = true
+
+[tool.pyright]
+exclude = ["dist/**/*", "build/**/*"]
+
+[tool.setuptools.package-dir]
+wahu_backend = "wahu_backend"
+wahu_frontend = "dist/wahu_frontend"
+wahu_cli = "wahu_cli"
+
+[tool.setuptools.package-data]
+wahu_frontend = ["**/*"]
+
+[buid-system]
+requires = ["Cython", "setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pixiv_wahu"
+version = "0.3.0"
+requires-python = ">=3.10"
+dependencies = [
+    "click",
+    "aiohttp",
+    "fuzzywuzzy[accelerate_fuzzywuzzy]",
+    "toml",
+    "prettytable"
+]
+
+[project.optional-dependencies]
+accelerate_fuzzywuzzy = ["python-levenshtein"]
+
+[project.scripts]
+pixiv-wahu = "wahu_backend:run"

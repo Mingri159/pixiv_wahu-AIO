@@ -1,0 +1,7 @@
+lazyimageURL = '/lazyimage.jpg'
+notfoundimageURL = '/notfound.jpg'
+illustDbImageURL = '/ilstdbimage'
+serverImageURL = '/image'
+repoImageURL = '/repoimage'
+wsRPCURL = '/wsrpc'
+postRPCURL = '/postrpc'
