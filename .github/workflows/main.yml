@@ -54,7 +54,9 @@ jobs:
       #    pipenv run pip install --upgrade setuptools wheel
 
       - name: 升级 setuptools, pip
-        run:  pip3 install --upgrade setuptools
+        run: |
+          pip3 install wheel
+          pip3 install --upgrade setuptools
 
       - name: 安装 python模块
         run: |
