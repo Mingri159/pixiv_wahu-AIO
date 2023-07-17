@@ -72,7 +72,7 @@ jobs:
       - name: 构建 wheel
         run:  |
           pip list
-          pipenv run python setup.py bdist_wheel
+          python setup.py bdist_wheel
 
 
       - uses: actions/upload-artifact@v3
