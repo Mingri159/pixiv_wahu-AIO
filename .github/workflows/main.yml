@@ -29,6 +29,7 @@ jobs:
 
       - name: 打包前端
         run: |
+          yarn quasar build
           compress-archive -path dist/wahu_frontend -destinationpath dist/wahu_frontend.zip
 
       - uses: actions/upload-artifact@v3
@@ -53,10 +54,10 @@ jobs:
       #   run: |
       #    pipenv run pip install --upgrade setuptools wheel
 
-      - name: 升级 setuptools, pip
+      - name: 升级 setuptools, wheel
         run: |
-          pip3 install wheel
           pip3 install --upgrade setuptools
+          pip3 install wheel
 
       - name: 安装 python模块
         run: |
@@ -69,13 +70,10 @@ jobs:
       #     pipenv lock
       #     pipenv install -d
 
-
-
       - name: 构建 wheel
         run:  |
           pip list
           python setup.py bdist_wheel
-
 
       - uses: actions/upload-artifact@v3
         with:
