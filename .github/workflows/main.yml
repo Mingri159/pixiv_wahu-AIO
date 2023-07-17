@@ -31,10 +31,10 @@ jobs:
         run: |
           yarn quasar build
 
-      # - uses: actions/upload-artifact@v3
-      #   with:
-      #     name: frontend-emits
-      #     path: dist/wahu_frontend.zip
+      - uses: actions/upload-artifact@v3
+        with:
+          name: frontend-emits
+          path: dist/wahu_frontend.zip
 
       - name: 建立 python 环境
         uses: actions/setup-python@v3
