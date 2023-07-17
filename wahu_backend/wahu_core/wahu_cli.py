@@ -23,21 +23,22 @@ class CliIoPipeABC:
 
     def put(
         self,
-        text: Optional[str]=None,
-        src: Optional[str]=None,
-        rewrite: bool=False,
-        erase: bool=False
+        text: Optional[str] = None,
+        src: Optional[str] = None,
+        rewrite: bool = False,
+        erase: bool = False
     ) -> None:
         raise NotImplementedError
 
     def putline(self, val: str) -> None:
         raise NotImplementedError
 
-    async def get(self, prefix: Optional[str]=None, echo: bool=True) -> str:
+    async def get(self, prefix: Optional[str] = None, echo: bool = True) -> str:
         raise NotImplementedError
 
     def close(self) -> None:
         raise NotImplementedError
+
 
 class AsyncGenPipe(AsyncGenerator[str, Optional[str]]):
     """
@@ -78,7 +79,6 @@ class AsyncGenPipe(AsyncGenerator[str, Optional[str]]):
         如果管道关闭，抛出 `StopAsyncIteration`
         """
 
-
         await self.output_event.wait()
 
         val = self.output_queue.get()
@@ -97,7 +97,6 @@ class AsyncGenPipe(AsyncGenerator[str, Optional[str]]):
         如果输入 `None` ，则不进行输入；
         如果输入 `[:stop]` ，则设置 `stopped_event` ，取消 task
         """
-
 
         if val is not None:
             self.input_queue.put(val)
@@ -130,10 +129,10 @@ class CliIOPipe(AsyncGenPipe, CliIoPipeABC):
 
     def put(
         self,
-        text: Optional[str]=None,
-        src: Optional[str]=None,
-        rewrite: bool=False,
-        erase: bool=False
+        text: Optional[str] = None,
+        src: Optional[str] = None,
+        rewrite: bool = False,
+        erase: bool = False
     ):
         """
         在终端打印，添加前端能识别的转义
@@ -169,13 +168,12 @@ class CliIOPipe(AsyncGenPipe, CliIoPipeABC):
 
         raise RuntimeError('至少传入 text')
 
-
     def putline(self, val: str) -> None:
         """新建一块 <pre> 打印文本"""
 
         self.put(text='\n' + val)
 
-    async def get(self, prefix: str='>', echo=True) -> str:
+    async def get(self, prefix: str = '>', echo=True) -> str:
         """等待前端输入"""
 
         self.put(f'[:input={prefix}]')
@@ -216,7 +214,8 @@ class CliIOPipeTerm(AsyncGenPipe, CliIoPipeABC):
         """计算若干行字符在终端中打印所需要的行数"""
 
         return sum(
-            (int(wcswidth(line) / self.term_size[0]) + 1 for line in s.split('\n'))
+            (int(wcswidth(line) /
+             self.term_size[0]) + 1 for line in s.split('\n'))
         )
 
     def _print(self, text: str) -> None:
@@ -240,10 +239,10 @@ class CliIOPipeTerm(AsyncGenPipe, CliIoPipeABC):
 
     def put(
         self,
-        text: Optional[str]=None,
-        src: Optional[str]=None,
-        rewrite: bool=False,
-        erase: bool=False
+        text: Optional[str] = None,
+        src: Optional[str] = None,
+        rewrite: bool = False,
+        erase: bool = False
     ) -> None:
         """兼容 `CliIoPipe` 的 API"""
 
@@ -267,7 +266,7 @@ class CliIOPipeTerm(AsyncGenPipe, CliIoPipeABC):
 
         self.put(text='\n' + val)
 
-    async def get(self, prefix: str='>', echo=True) -> str:
+    async def get(self, prefix: str = '>', echo=True) -> str:
 
         self.output('\n' + prefix + ' ')
         self.output('[:input]')  # 此处的转义由前端处理
@@ -297,7 +296,6 @@ class CliClickCtxObj:
         self.d: dict[str, Any]
 
 
-
 class WahuCliScript:
     """储存命令行脚本信息"""
 
@@ -319,8 +317,8 @@ class WahuCliScript:
 
 
 def _load_cli_scripts_from_dir(
-    script_dir: Path, wexe: click.Group, reload: bool=False
-) ->list[WahuCliScript]:
+    script_dir: Path, wexe: click.Group, reload: bool = False
+) -> list[WahuCliScript]:
 
     cli_scripts = []
 
@@ -328,7 +326,6 @@ def _load_cli_scripts_from_dir(
 
     for item in script_dir.iterdir():
         if item.suffix == '.py':
-
             m = importlib.import_module(item.stem)
             if reload:
                 importlib.reload(m)
@@ -375,8 +372,9 @@ def _load_cli_scripts_from_dir(
 
     return cli_scripts
 
-def load_cli_scripts(script_dir: Path, reload: bool=False
-) -> tuple[list[WahuCliScript], click.Group]:
+
+def load_cli_scripts(script_dir: Path, reload: bool = False
+                     ) -> tuple[list[WahuCliScript], click.Group]:
     """
     加载所有命令行脚本
     - :param script_dir: 脚本所在的目录
@@ -396,14 +394,13 @@ def load_cli_scripts(script_dir: Path, reload: bool=False
 
     # 从 wahu_cli 包中加载
     try:
-        cli_pkg_path = resources.path('wahu_cli', 'reload_cli.py').__enter__().parent
-        cli_scripts += _load_cli_scripts_from_dir(cli_pkg_path, wexe, reload=reload)
+        cli_pkg_path = resources.path(
+            'wahu_cli', 'reload_cli.py').__enter__().parent
+        cli_scripts += _load_cli_scripts_from_dir(
+            cli_pkg_path, wexe, reload=reload)
     except ModuleNotFoundError:
         pass
 
     cli_scripts += _load_cli_scripts_from_dir(script_dir, wexe, reload=reload)
 
     return cli_scripts, wexe
-
-
-

@@ -9,7 +9,7 @@ from ..sqlite_tools.adapters import IntAdapter, JsonAdapter, StrAdapter, BoolAda
 class IllustBookmarkRaw:
     iid: int
     pages: list[int]
-    add_timestamp: int  # 单位为秒
+    add_timestamp: int  # 单位为毫秒
 
 
 class IllustBookmark(IllustBookmarkRaw, DatabaseRow):
@@ -26,11 +26,13 @@ class IllustBookmark(IllustBookmarkRaw, DatabaseRow):
     def as_fids(self):
         return [f'{self.iid}-{p}' for p in self.pages]
 
+
 # 覆写模式
 # intelligent: 当遇到一页插画，其中所有插画都存在于数据库中，则停止拉取下面几页
 # append     : 拉取指定页数的插画并追加到数据库
 # replace    : 删除原有数据，然后拉取指定页数的插画并追加到数据库
 OverwriteMode = Literal["intelligent", "append", "replace"]
+
 
 @dataclasses.dataclass
 class IllustBookmarkingConfigRaw:
@@ -57,4 +59,3 @@ class IllustBookmarkingConfig(IllustBookmarkingConfigRaw, DatabaseRow):
     keys = list(adapters.keys())
 
     index = 'did'
-

@@ -18,6 +18,7 @@ from .wahu_client.cli_client import main as cli_client_main
 PixivWahu 的命令行入口
 """
 
+
 def _run_in_new_loop(coro: Coroutine[Any, Any, Any]) -> None:
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
@@ -41,7 +42,8 @@ browser_deco = click.option(
 )
 logging_deco = click.option(
     '--log-level', '-l',
-    type=click.Choice(['ERROR', 'WARNING', 'INFO', 'DEBUG'], case_sensitive=False),
+    type=click.Choice(['ERROR', 'WARNING', 'INFO', 'DEBUG'],
+                      case_sensitive=False),
     help='设定根记录器的日记级别，覆盖配置文件'
 )
 silent_deco = click.option(
@@ -72,7 +74,7 @@ def _run(
     缺省子命令将调用子命令 ui
     """
     config_obj = load_config(Path(config))
-
+    # print(f'config_obj: {config_obj}')
 
     if port is not None:
         config_obj.server_port = port
@@ -89,6 +91,7 @@ def _run(
 
     if cctx.invoked_subcommand is None:
         cctx.invoke(ui, browser=browser)
+
 
 @_run.command(
     context_settings=dict(ignore_unknown_options=True)
@@ -113,6 +116,7 @@ def exe(cctx: click.Context, args: tuple[str], help: bool):
 
     _run_in_new_loop(main())
 
+
 @_run.command()
 @browser_deco
 @click.pass_context
@@ -136,7 +140,8 @@ def ui(
                 f'http://{host}:{wctx.config.server_port}/index.html'
             )
 
-        web.run_app(app, host=wctx.config.server_host, port=wctx.config.server_port)
+        web.run_app(app, host=wctx.config.server_host,
+                    port=wctx.config.server_port)
 
 
 run = functools.partial(_run.main, standalone_mode=False)  # 确保 atexit hook 被触发

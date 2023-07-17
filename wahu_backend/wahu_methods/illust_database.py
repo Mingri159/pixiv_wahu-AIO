@@ -17,6 +17,9 @@ from ..wahu_core.core_exceptions import WahuRuntimeError
 from .lib_logger import logger
 from .lib_modded_argparser import ArgumentParser
 
+# 清空订阅时显示的索引
+from ..illust_bookmarking.illust_bookmark_database import clear_index
+
 if TYPE_CHECKING:
     from . import WahuMethods
 
@@ -50,7 +53,8 @@ def create_ibd_query_parser() -> argparse.ArgumentParser:
 
     parser.add_argument('-T', '--title', action='store_true', help='模糊查询标题')
     parser.add_argument('-t', '--tag', action='store_true', help='模糊查询标签')
-    parser.add_argument('-u', '--username', action='store_true', help='模糊查询用户名')
+    parser.add_argument('-u', '--username',
+                        action='store_true', help='模糊查询用户名')
     parser.add_argument('-C', '--caption', action='store_true', help='模糊查询描述')
 
     parser.add_argument(
@@ -67,6 +71,8 @@ def create_ibd_query_parser() -> argparse.ArgumentParser:
     )
 
     return parser
+
+
 ibd_query_parser = create_ibd_query_parser()
 
 
@@ -374,18 +380,17 @@ class WahuIllustDatabaseMethods:
         """设置数据库配置"""
 
         if isinstance(config, IllustBookmarkingConfig):
-          cfg = config
+            cfg = config
         else:
-          try:
-              cfg = IllustBookmarkingConfig(
-                  *(config[k] for k in IllustBookmarkingConfig.keys)
-              )
-          except KeyError as ke:
-              raise WahuRuntimeError(f'缺少配置项 {ke.args}')
+            try:
+                cfg = IllustBookmarkingConfig(
+                    *(config[k] for k in IllustBookmarkingConfig.keys)
+                )
+            except KeyError as ke:
+                raise WahuRuntimeError(f'缺少配置项 {ke.args}')
 
         with await ctx.ilst_bmdbs[name](readonly=False) as ibd:
             ibd.config_table_editor.setall(cfg)
-
 
     @classmethod
     @wahu_methodize(middlewares=[_check_db_name])
@@ -394,17 +399,21 @@ class WahuIllustDatabaseMethods:
     ) -> AsyncGenerator[str, Optional[str]]:
         """更新数据库订阅"""
 
+        clear_index()  # 清空illust_bookmark_database中的索引，用于前端更新信息窗口显示序号；
+
+        # update_subscrip --> 【illust_bookmark_database.py】
+        # user_bookmarks_illusts -->  【api_illust.py】
+        # user_illusts -->  【api_illust.py】
         with await ctx.ilst_bmdbs[name](readonly=False) as ibd:
             coro_update, pipe = await ibd.update_subscrip(
                 get_user_bookmarks=ctx.papi.user_bookmarks_illusts,
                 get_user_illusts=ctx.papi.user_illusts,
                 page_num=page_num
             )
-        
+
         async def coro():
             with await ctx.ilst_bmdbs[name](readonly=False) as ibd:
                 await coro_update
-        
         asyncio.create_task(coro())
 
         return pipe

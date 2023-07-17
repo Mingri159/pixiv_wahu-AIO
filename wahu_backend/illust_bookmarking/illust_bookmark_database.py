@@ -2,7 +2,8 @@ import asyncio
 import sqlite3
 from pathlib import Path
 from random import getrandbits
-from time import time
+# from time import time
+import time
 from typing import (AsyncGenerator, AsyncIterable, Callable, Coroutine, Iterable, Optional,
                     Tuple, Union, AsyncIterable)
 
@@ -15,6 +16,20 @@ from ..sqlite_tools.abc import DependingDatabase
 from .ib_datastructure import IllustBookmark, IllustBookmarkingConfig, OverwriteMode
 from .log_adapter import IllustBookmarkDatabaseLogAdapter
 from .logger import logger
+
+
+def t_time():
+    time.sleep(0.005)  # 休眠5毫秒
+    t = int(round(time.time() * 1000))
+    return t
+
+
+index_page = 0  # 1-74
+
+
+def clear_index():
+    global index_page
+    index_page = 0  # 1-74
 
 
 async def alist_illusts_piped(
@@ -30,29 +45,58 @@ async def alist_illusts_piped(
     """
     def add_to(illusts: list[IllustDetail]):
         ibd.illusts_te.insert(illusts)
-        ibd.bookmarks_te.insert(
-            [IllustBookmark(ilst.iid, list(range(ilst.page_count)), int(time()))
-            for ilst in illusts]
-        )
-        pipe.output('\n'.join([f"{ilst.title} - {ilst.iid}" for ilst in illusts]))
+        # ibd.bookmarks_te.insert( [IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time()) for ilst in illusts]  )
+        for ilst in reversed(illusts):
+            # print(                f'list bookmark:{[IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time())]}')
+            ibd.bookmarks_te.insert(
+                [IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time())])
+
+        global index_page
+        index_page += 1  # 显示序号
+        pipe.output(
+            '\n'.join([f"{(index_page-1)*30+illusts.index(ilst)+1}-{index_page}-{illusts.index(ilst)+1}、[{ilst.iid}] - {ilst.title}" for ilst in illusts]))
+        time.sleep(0.05)
 
     try:
+        g_re = []
         if intelligent:
-            async for item in g:
-                if all((ibd.query_detail(ilst.iid) != None for ilst in item)):
+            pipe.output(f'🚀覆写模式：intelligent')
+            g_re = []
+            async for item1 in g:
+                # print(f'intelligent item:{item}')
+                # print(f'type g:{type(g)}')  # g: <class 'async_generator'>
+                # print(f'type item:{type(item)}') # item: <class 'list'>
+                # print(f'--> {all((ibd.query_detail(ilst.iid) != None for ilst in item))}')
+                if all((ibd.query_detail(ilst.iid) != None for ilst in item1)):
+                    if len(g_re):
+                        for item2 in reversed(g_re):
+                            add_to(item2)
+
                     raise StopAsyncIteration
-                add_to(item)
+                else:
+                    g_re.append(item1)
+                    pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
 
         elif count == -1:
-            async for item in g:
-                add_to(item)
+            pipe.output(f'🚀更新页数：---> 不限页数...')
+            g_re = []
+            async for item1 in g:
+                g_re.append(item1)
+                pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
+            for item2 in reversed(g_re):
+                add_to(item2)
 
         else:
+            pipe.output(f'🚀更新页数：---> {count}页...')
             i = 0
-            async for item in g:
-                add_to(item)
+            g_re = []
+            async for item1 in g:
+                g_re.append(item1)
+                pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
                 i += 1
                 if i == count:
+                    for item2 in reversed(g_re):
+                        add_to(item2)
                     raise StopAsyncIteration
 
     except StopAsyncIteration:
@@ -76,9 +120,10 @@ class IllustBookmarkDatabase(DependingDatabase):
         )
         return cfg
 
-    illusts_te: SqliteTableEditor[IllustDetail] = SqliteTableEditor('illusts', IllustDetail)
-    bookmarks_te: SqliteTableEditor[IllustBookmark] = SqliteTableEditor('bookmarks', IllustBookmark)
-
+    illusts_te: SqliteTableEditor[IllustDetail] = SqliteTableEditor(
+        'illusts', IllustDetail)
+    bookmarks_te: SqliteTableEditor[IllustBookmark] = SqliteTableEditor(
+        'bookmarks', IllustBookmark)
 
     config_table_editor: ConfigStoredinSqlite[IllustBookmarkingConfig] = \
         ConfigStoredinSqlite(
@@ -117,7 +162,7 @@ class IllustBookmarkDatabase(DependingDatabase):
         if self.config_table_editor.empty:
             self.config_table_editor.insert([self.get_default_config()])
 
-    def close(self, commit: bool=True) -> None:
+    def close(self, commit: bool = True) -> None:
 
         if commit:
             self.db_con.commit()
@@ -179,7 +224,9 @@ class IllustBookmarkDatabase(DependingDatabase):
             self.bookmarks_te.update(iid, pages=pages)
             flag2 = False
         else:
-            self.bookmarks_te.insert([IllustBookmark(iid, pages, int(time()))])
+            # self.bookmarks_te.insert([IllustBookmark(iid, pages, int(time()))])
+            self.bookmarks_te.insert([IllustBookmark(iid, pages, t_time())])
+
             flag2 = True
 
         self.log_adapter.info('set_bookmark: iid=%s ，收藏 %s 页'
@@ -250,7 +297,7 @@ class IllustBookmarkDatabase(DependingDatabase):
 
             self.illusts_te.delete()
             self.bookmarks_te.delete()
-        
+
         async def coro():
             assert page_num != None
             coro_list = [
@@ -310,5 +357,3 @@ class IllustBookmarkDatabase(DependingDatabase):
         cols = self.illusts_te.select_cols(cols=['iid', 'restrict'])
 
         return [iid for iid, res in cols if res == 2]
-
-
