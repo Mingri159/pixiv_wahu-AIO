@@ -12,7 +12,7 @@
 const { configure } = require('quasar/wrappers');
 
 
-const apiHost = 'http://127.0.0.1:18080'
+const apiHost = 'http://127.0.0.1:13652'
 
 module.exports = configure(function (/* ctx */) {
   return {
@@ -120,7 +120,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify'],
+      plugins: ['Notify', 'AppFullscreen'],
     },
 
     // animations: 'all', // --- includes all animations

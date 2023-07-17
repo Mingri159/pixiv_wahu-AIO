@@ -7,14 +7,14 @@
           <div class="col-4 q-table__title">已索引的文件</div>
           <q-btn flat @click="loadIndex" color="primary" class="float-right q-ma-sm" label="刷新" icon="refresh">
           </q-btn>
-          <q-btn flat @click="updateIndex" color="primary" class="float-right q-ma-sm" :loading="updating"
-            icon="update" label="更新">
+          <q-btn flat @click="updateIndex" color="primary" class="float-right q-ma-sm" :loading="updating" icon="update"
+            label="更新">
             <q-tooltip>
               将索引缓存中下载完成的项移入索引
             </q-tooltip>
           </q-btn>
-          <q-btn flat @click="validate" color="primary" class="float-right q-ma-sm" :loading="validating"
-            label="校验" icon="verified">
+          <q-btn flat @click="validate" color="primary" class="float-right q-ma-sm" :loading="validating" label="校验"
+            icon="verified">
             <q-tooltip>
               检查是否存在未索引的文件和失效的索引
             </q-tooltip>
@@ -49,7 +49,6 @@
       </q-table>
     </q-card>
   </div>
-
 </template>
 
 
@@ -74,7 +73,7 @@ watch(() => props.refresh, () => {
 })
 
 const indexedColDef = [
-  { name: 'fid', label: 'FID', field: 'fid', },
+  { name: 'fid', label: 'FID', field: 'fid', sortable: true },
   { name: 'path', label: '文件', field: 'path' }
 ]
 const invalidFileColDef = [indexedColDef[1]]

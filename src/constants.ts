@@ -1,5 +1,8 @@
 export const lazyimageURL = '/lazyimage.jpg'
 export const notfoundimageURL = '/notfound.jpg'
+export const invisibleURL = '/invisible.png'
+export const no_h_URL = '/no_h.png'
+export const no_ai_URL = '/no_ai.png'
 
 export const illustDbImageURL = '/ilstdbimage'
 export const serverImageURL = '/image'

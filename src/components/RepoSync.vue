@@ -69,7 +69,6 @@
       </q-table>
     </q-card>
   </div>
-
 </template>
 
 <script setup lang="ts">
@@ -204,3 +203,10 @@ function submitDownload() {
 }
 
 </script>
+
+<style lang="scss" >
+.q-table__middle {
+  /* height or max-height is important */
+  max-height: 500px
+}
+</style>

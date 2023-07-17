@@ -1,5 +1,5 @@
 <template>
-  <q-card class="q-ma-md" v-if="detail !== undefined">
+  <q-card class="q-ma-md" v-if="detail !== undefined" style="margin-top:50px">
     <q-img :src="detail.background_image == '' ? notfoundimageURL : serverImageURL + detail.background_image">
       <q-item>
         <q-item-section avatar top>

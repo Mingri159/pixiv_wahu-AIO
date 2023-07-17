@@ -3,40 +3,42 @@
     <q-scroll-area style="height: 100%">
 
       <q-list>
-        <q-item clickable @click="pushWindow({component: 'Home', title: 'Home'}); $emit('update:modelValue', false)"
-          v-ripple
-        >
+        <q-item v-ripple clickable
+          @click="pushWindow({ component: 'Home', title: 'Home' }); $emit('update:modelValue', false)">
           <q-item-section avatar><q-icon name="terminal"></q-icon></q-item-section>
           <q-item-section>Home</q-item-section>
         </q-item>
 
-        <q-item clickable @click="pushWindow({ component: 'CliScriptView'}); $emit('update:modelValue', false)">
+        <q-item v-ripple clickable
+          @click="pushWindow({ component: 'CliScriptView', title: '命令行脚本' }); $emit('update:modelValue', false)">
           <q-item-section avatar><q-icon name="code"></q-icon></q-item-section>
           <q-item-section>命令行脚本</q-item-section>
         </q-item>
 
         <q-item-label header>本地</q-item-label>
 
-        <q-expansion-item label="插画数据库" icon="data_array">
+        <q-expansion-item label="本地收藏夹" icon="data_array">
           <q-list>
             <div class="q-ml-lg">
-              <q-item clickable v-for="dbn in dbNameList" :key="dbn" v-ripple>
+              <!-- <q-item clickable v-ripple @click="clickDb('my_favourite')" style="margin-left: 50px;">
+                ❤ &nbsp; - &nbsp; <span>my_favourite</span>
+              </q-item> -->
+              <q-item clickable v-for="dbn in dbNameList" :key="dbn" v-ripple style="margin-left: 50px;">
                 <q-item-section @click="clickDb(dbn)">
-                  {{ dbn }}
+                  ❤ &nbsp; - &nbsp; {{ dbn }}
                 </q-item-section>
-                <q-item-section side>
-                  <q-btn icon="backspace" @click="showDelDbDiag = true; dbNameToDel = dbn" flat size="xs"
-                    padding="5px">
+                <q-item-section side v-show="dbn !== 'my_favourite'">
+                  <q-btn icon="backspace" @click="showDelDbDiag = true; dbNameToDel = dbn" flat size="xs" padding="5px">
                     <q-tooltip>删除</q-tooltip>
                   </q-btn>
                 </q-item-section>
               </q-item>
-              <q-item clickable v-ripple>
+              <q-item clickable v-ripple style="margin-left: 45px;">
                 <q-item-section avatar>
                   <q-icon name="add"></q-icon>
                   <q-tooltip>新建</q-tooltip>
                 </q-item-section>
-                <q-menu transition-show="slide-right" transition-hide="slide-left">
+                <q-menu transition-show="slide-right" transition-hide="slide-left" v-model="newdb_show">
                   <q-input label="数据库名" underlined class="q-ma-md" @keyup.enter="newDb(newDbName)" v-model="newDbName"
                     :error="newDbInputError" @input="newDbInputError = false" autofocus></q-input>
                 </q-menu>
@@ -44,7 +46,6 @@
             </div>
           </q-list>
         </q-expansion-item>
-
 
         <q-dialog v-model="showDelDbDiag">
           <q-card>
@@ -61,26 +62,33 @@
           </q-card>
         </q-dialog>
 
-        <q-expansion-item label="插画储存库" icon="storage">
+        <!-- storage -->
+        <!-- <q-item v-ripple clickable
+          @click="pushWindow({ component: 'IllustQueryLocal', title: '本地储存库' }); $emit('update:modelValue', false)">
+          <q-item-section avatar><q-icon name="source"></q-icon></q-item-section>
+          <q-item-section>本地储存库</q-item-section>
+        </q-item> -->
+
+
+        <q-expansion-item label='本地储存库' icon="source">
           <q-list>
             <div class="q-ml-lg">
-              <q-item v-for="rpn in repoNameList" :key="rpn" v-ripple clickable>
+              <q-item v-for="rpn in repoNameList" :key="rpn" v-ripple clickable style="margin-left: 50px;">
                 <q-item-section @click="clickRepo(rpn)">
-                  {{ rpn }}
+                  🔶 &nbsp; - &nbsp; {{ rpn }}
                 </q-item-section>
-                <q-item-section side>
-                  <q-btn icon="backspace" @click="showDelRpDiag = true; repoNameToDel = rpn" flat size="xs"
-                    padding="5px">
+                <q-item-section side v-show="rpn !== 'Favourite'">
+                  <q-btn icon="backspace" @click="showDelRpDiag = true; repoNameToDel = rpn" flat size="xs" padding="5px">
                     <q-tooltip>删除</q-tooltip>
                   </q-btn>
                 </q-item-section>
               </q-item>
-              <q-item clickable v-ripple>
+              <q-item clickable v-ripple style="margin-left: 45px;">
                 <q-item-section avatar>
                   <q-icon name="add"></q-icon>
                   <q-tooltip>新建</q-tooltip>
                 </q-item-section>
-                <q-menu transition-show="slide-right" transition-hide="slide-left">
+                <q-menu transition-show="slide-right" transition-hide="slide-left" v-model="newrepo_show">
                   <q-input label="储存库名" underlined class="q-ma-md" v-model="newRepoName" :error="newRepoInputError"
                     @input="newRepoInputError = false" autofocus></q-input>
                   <q-input label="路径" underlined class="q-ma-md" @keyup.enter="newRepo" v-model="newRepoPrefix"
@@ -91,10 +99,17 @@
           </q-list>
         </q-expansion-item>
 
-        <q-item v-ripple clickable>
+
+        <q-item v-ripple clickable
+          @click="pushWindow({ component: 'History', title: '浏览历史' }); $emit('update:modelValue', false)">
+          <q-item-section avatar><q-icon name="history"></q-icon></q-item-section>
+          <q-item-section>浏览历史</q-item-section>
+        </q-item>
+
+        <q-item v-ripple clickable
+          @click="pushWindow({ component: 'TagRegression', title: '插画标签逻辑回归' }); $emit('update:modelValue', false)">
           <q-item-section avatar><q-icon name="analytics"></q-icon></q-item-section>
-          <q-item-section @click="pushWindow({component: 'TagRegression'}); $emit('update:modelValue', false)">
-            插画标签逻辑回归</q-item-section>
+          <q-item-section>插画标签逻辑回归</q-item-section>
         </q-item>
 
         <q-dialog v-model="showDelRpDiag">
@@ -114,36 +129,43 @@
 
         <q-item-label header>Pixiv</q-item-label>
 
+        <q-item clickable v-ripple
+          @click="pushWindow({ component: 'PixivSearchIllust', title: 'Pixiv搜索', props: { initialQueryString: '-s', showNavBar: true } }); $emit('update:modelValue', false)">
+          <q-item-section avatar><q-icon name="search"></q-icon></q-item-section>
+          <q-item-section>搜索<q-tooltip>插画</q-tooltip></q-item-section>
+
+        </q-item>
+
+        <q-item clickable v-ripple
+          @click="pushWindow({ component: 'PixivFavorite', title: 'Pixiv收藏', props: { initialQueryString: '-b' } }); $emit('update:modelValue', false)">
+          <!-- <q-item-section avatar><q-icon name="bookmark"></q-icon></q-item-section> -->
+          <q-item-section avatar><q-icon name="favorite"></q-icon></q-item-section>
+          <q-item-section>收藏</q-item-section>
+        </q-item>
+
+        <q-item clickable v-ripple
+          @click="pushWindow({ component: 'PixivSearchIllust', title: '推荐', props: { initialQueryString: '-r', showNavBar: false } }); $emit('update:modelValue', false)">
+          <q-item-section avatar><q-icon name="recommend"></q-icon></q-item-section>
+          <q-item-section>推荐</q-item-section>
+        </q-item>
+
         <q-expansion-item label="插画" icon="panorama">
           <q-card class="q-ml-lg">
             <q-list>
               <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchIllust', props: { initialQueryString: '-n' } }); $emit('update:modelValue', false)">
+                @click="pushWindow({ component: 'PixivSearchIllust', title: '大家的新作', props: { initialQueryString: '-n', showNavBar: false } }); $emit('update:modelValue', false)">
                 <q-item-section avatar><q-icon name="newspaper"></q-icon></q-item-section>
                 <q-item-section>大家的新作</q-item-section>
               </q-item>
               <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchIllust', props: { initialQueryString: '-f' } }); $emit('update:modelValue', false)">
+                @click="pushWindow({ component: 'PixivSearchIllust', title: '关注画师的新作', props: { initialQueryString: '-f', showNavBar: false } }); $emit('update:modelValue', false)">
                 <q-item-section avatar><q-icon name="account_box"></q-icon></q-item-section>
-                <q-item-section>关注的画师的新作</q-item-section>
+                <q-item-section>关注画师的新作</q-item-section>
               </q-item>
+
+
               <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchIllust', props: { initialQueryString: '-r' } }); $emit('update:modelValue', false)">
-                <q-item-section avatar><q-icon name="recommend"></q-icon></q-item-section>
-                <q-item-section>推荐</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchIllust', props: { initialQueryString: '-b' } }); $emit('update:modelValue', false)">
-                <q-item-section avatar><q-icon name="bookmark"></q-icon></q-item-section>
-                <q-item-section>收藏</q-item-section>
-              </q-item>
-              <q-item clickable @click="pushWindow({ component: 'PixivSearchIllust' }); $emit('update:modelValue', false)"
-                v-ripple>
-                <q-item-section avatar><q-icon name="search"></q-icon></q-item-section>
-                <q-item-section>更多搜索</q-item-section>
-              </q-item>
-              <q-item clickable @click="pushWindow({ component: 'TrendingTags' }); $emit('update:modelValue', false)"
-                v-ripple>
+                @click="pushWindow({ component: 'TrendingTags' }); $emit('update:modelValue', false)">
                 <q-item-section avatar><q-icon name="trending_up"></q-icon></q-item-section>
                 <q-item-section>趋势标签</q-item-section>
               </q-item>
@@ -151,24 +173,15 @@
           </q-card>
         </q-expansion-item>
 
-        <q-expansion-item label="用户" icon="person">
-          <q-card class="q-ml-lg">
-            <q-list>
-              <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchUser', props: { initialQueryString: '-F' } }); $emit('update:modelValue', false)">
-                <q-item-section avatar><q-icon name="bookmark"></q-icon></q-item-section>
-                <q-item-section>关注</q-item-section>
-              </q-item>
-              <q-item clickable v-ripple
-                @click="pushWindow({ component: 'PixivSearchUser' }); $emit('update:modelValue', false)">
-                <q-item-section avatar><q-icon name="search"></q-icon></q-item-section>
-                <q-item-section>更多搜索</q-item-section>
-              </q-item>
-            </q-list>
-          </q-card>
-        </q-expansion-item>
+        <q-item clickable v-ripple
+          @click="pushWindow({ component: 'PixivSearchUser', title: '关注的画师', props: { initialQueryString: '-F' } }); $emit('update:modelValue', false)">
+          <q-item-section avatar><q-icon name="how_to_reg"></q-icon></q-item-section>
+          <q-item-section>关注的画师</q-item-section>
+          <q-tooltip>也可以在这里搜索其他画师</q-tooltip>
+        </q-item>
 
-        <q-item clickable @click="pushWindow({ component: 'GetToken'}); $emit('update:modelValue', false)">
+        <q-item clickable
+          @click="pushWindow({ component: 'GetToken', title: '获取 RefreshToken' }); $emit('update:modelValue', false)">
           <q-item-section avatar><q-icon name="token"></q-icon></q-item-section>
           <q-item-section>获取 Refresh Token</q-item-section>
         </q-item>
@@ -182,8 +195,11 @@
 import * as wm from '../plugins/wahuBridge/methods'
 import { pushWindow } from 'src/plugins/windowManager'
 import { pushNoti } from 'src/plugins/notifications';
-import { defineComponent, ref, watch } from 'vue';
+import { defineComponent, ref, watch, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
+
+import { useOptionsStore } from 'src/stores/options';
+const options_store = useOptionsStore();
 
 export default defineComponent({
   props: {
@@ -192,27 +208,45 @@ export default defineComponent({
   emits: ['update:modelValue'],
   setup(props, { emit }) {
 
+    const newdb_show = ref(false)
+    const newrepo_show = ref(false)
+
     const dbNameList = ref<Array<string>>([])
     const repoNameList = ref<Array<string>>([])
 
     const $q = useQuasar()
 
     function updateContent() {
-      wm.ibd_list().then(ls => { dbNameList.value = ls })
-      wm.ir_list().then(ls => { repoNameList.value = ls })
+      wm.ibd_list().then(ls => {
+        let index = ls.indexOf("my_favourite");
+        if (index !== -1) {
+          ls.unshift(ls.splice(index, 1)[0]);
+        }
+        dbNameList.value = ls
+      })
+      wm.ir_list().then(ls => {
+        let index = ls.indexOf("Favourite");
+        if (index !== -1) {
+          ls.unshift(ls.splice(index, 1)[0]);
+        }
+        repoNameList.value = ls
+      })
     }
 
     watch(props, () => {
       if (props.modelValue) { updateContent() }
     })
 
+    onMounted(() => { updateContent() })
+
     function clickDb(dbn: string) {
       pushWindow({
-        component: 'IllustQueryLocal',
-        props: { dbName: dbn },
-        title: dbn
+        component: 'LocalFavorite',
+        props: { dbName: dbn, initialQueryString: '-a', dbNameList: dbNameList },
+        title: '本地收藏夹'
       }, true)
       emit('update:modelValue', false)
+      options_store.dbName = dbn
     }
 
     const newDbName = ref<string>()
@@ -229,8 +263,16 @@ export default defineComponent({
           msg: '创建了新的插画数据库 ' + dbn
         })
 
-        wm.ibd_list().then(ls => { dbNameList.value = ls })
+        wm.ibd_list().then(ls => {
+          let index = ls.indexOf("my_favourite");
+          if (index !== -1) {
+            ls.unshift(ls.splice(index, 1)[0]);
+          }
+          dbNameList.value = ls
+        })
+
       })
+      newdb_show.value = false
     }
 
     const showDelDbDiag = ref<boolean>(false)
@@ -245,7 +287,13 @@ export default defineComponent({
               msg: '删除了插画数据库 ' + dbNameToDel.value
             })
             dbNameToDel.value = undefined
-            wm.ibd_list().then(ls => { dbNameList.value = ls })
+            wm.ibd_list().then(ls => {
+              let index = ls.indexOf("my_favourite");
+              if (index !== -1) {
+                ls.unshift(ls.splice(index, 1)[0]);
+              }
+              dbNameList.value = ls
+            })
           })
       }
     }
@@ -271,7 +319,13 @@ export default defineComponent({
               msg: '删除了插画储存库 ' + repoNameToDel.value
             })
             repoNameToDel.value = undefined
-            wm.ir_list().then(ls => { repoNameList.value = ls })
+            wm.ir_list().then(ls => {
+              let index = ls.indexOf("Favourite");
+              if (index !== -1) {
+                ls.unshift(ls.splice(index, 1)[0]);
+              }
+              repoNameList.value = ls
+            })
           })
       }
     }
@@ -293,16 +347,23 @@ export default defineComponent({
               msg: `创建了新的插画储存库 ${newRepoName.value} 在 ${newRepoPrefix.value}`
             })
 
-            wm.ir_list().then(ls => { repoNameList.value = ls })
+            wm.ir_list().then(ls => {
+              let index = ls.indexOf("Favourite");
+              if (index !== -1) {
+                ls.unshift(ls.splice(index, 1)[0]);
+              }
+              repoNameList.value = ls
+            })
           })
       }
+      newrepo_show.value = false
     }
 
     return {
       dbNameList, updateContent, clickDb, newDbName, newDb,
       showDelDbDiag, deleteDb, showDelRpDiag, repoNameToDel, clickRepo,
       deleteRepo, newRepoName, newRepoInputError, newRepoPrefix, newRepo,
-      pushWindow, repoNameList, newDbInputError, dbNameToDel
+      pushWindow, repoNameList, newDbInputError, dbNameToDel, options_store, newdb_show, newrepo_show
     }
   }
 })

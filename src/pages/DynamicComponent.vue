@@ -30,10 +30,15 @@ import IllustQueryLocal from './IllustQueryLocal.vue'
 import PixivSearchIllust from './PixivSearchIllust.vue'
 import PixivSearchUser from './PixivSearchUser.vue'
 import PixivUserDetail from './PixivUserDetail.vue'
+import History from './History.vue' //浏览历史
+import PixivFavorite from './PixivFavorite.vue' //pixiv收藏夹
+import LocalFavorite from './LocalFavorite.vue' //本地收藏夹
 import RepoView from './RepoView.vue'
 import TagRegression from './TagRegression.vue'
 import TrendingTags from './TrendingTags.vue'
-interface componentIndex {[index: string] : any}
+
+interface componentIndex { [index: string]: any }
+
 const components: componentIndex = {
   CliScriptView: CliScriptView,
   ErrorNotFound: ErrorNotFound,
@@ -48,6 +53,9 @@ const components: componentIndex = {
   RepoView: RepoView,
   TagRegression: TagRegression,
   TrendingTags: TrendingTags,
+  History: History,
+  PixivFavorite: PixivFavorite,
+  LocalFavorite: LocalFavorite
 }
 /** 自动生成 Import End */
 
@@ -80,9 +88,11 @@ function updateTitle(i: number, title: string) {
   height: 100vh;
   overflow: hidden;
 }
+
 .component-container {
   position: relative;
   width: 100%;
-  top: $header-height
+  // top: $header-height
+  top: 10px
 }
 </style>

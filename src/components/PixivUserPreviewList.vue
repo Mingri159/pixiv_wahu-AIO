@@ -47,7 +47,6 @@
   </q-card>
 
   <GotoTop></GotoTop>
-
 </template>
 
 

@@ -1,5 +1,5 @@
 <template>
-  <q-card v-if="detail !== undefined" class="q-ma-sm">
+  <q-card v-if="detail !== undefined" class="q-ma-sm" style="margin-top:50px">
     <div class="q-ma-md">
       <span class="text-h4">{{ detail.title }}</span>
       <span class="text-h6 text-medium-emphasis">
@@ -7,7 +7,10 @@
       </span>
       <div class="col-2 q-ma-md absolute-right">
         <q-btn @click="handleBookmarkClick" :loading="bookmarkLoading" color="primary">
-        {{ detail.is_bookmarked ? '取消收藏' :'收藏'}}</q-btn>
+          <q-icon name="favorite" v-if="detail.is_bookmarked" style="color:#f2361d"></q-icon>
+          <q-icon name="favorite_border" v-else></q-icon>
+          <span style="margin-left:10px">{{ detail.is_bookmarked ? '取消收藏' : '收藏' }}</span>
+        </q-btn>
       </div>
     </div>
 
@@ -20,16 +23,25 @@
               </q-select>
             </div>
             <div class="col-6">
-              <q-select class="q-ma-sm" :options="dbList" v-model="selectedDb" label="选择数据库" dense>
-              </q-select>
+              <!-- <q-select class="q-ma-sm" :options="dbList" v-model="selectedDb" label="选择数据库" dense> </q-select> -->
+              <q-select class="q-ma-sm" :options="dbList" v-model="selectedDb" label="选择本地收藏夹" dense> </q-select>
             </div>
           </div>
         </q-card>
 
+        <!-- 图片 -->
         <IllustImagePages v-model="selectedPage" :iid="iid" :page-count="detail.page_count"
-          :disabled="selectedDb === undefined" :image-src-list="imageURLList"></IllustImagePages>
+          :disabled="selectedDb === undefined" :image-src-list="imageURLList" @onPreview="fun_onPreview">
+        </IllustImagePages>
 
+        <!-- 图片预览组件 -->
+        <image-preview ref="imgPreviewRef_pixiv" :width="400" :height="300" :zoomRatio="0.1" :minZoomScale="0.8"
+          resetOnDbclick :maxZoomScale="5" :src="imageURLList_preview"> </image-preview>
+
+        <!-- 信息 -->
         <IllustInformation :detail="detail"></IllustInformation>
+
+        <!-- 描述 -->
         <IllustCaption :detail="detail"></IllustCaption>
       </div>
 
@@ -76,6 +88,15 @@ import IllustListPixiv from 'src/components/IllustListPixiv.vue';
 import { WahuStopIteration } from 'src/plugins/wahuBridge/client';
 import { pushNoti } from 'src/plugins/notifications';
 
+
+import ImagePreview from 'src/components/ImagePreview.vue';
+
+const imgPreviewRef_pixiv = ref<any>(null)
+const fun_onPreview = (index: number) => {
+  // 传递点击图片的索引
+  imgPreviewRef_pixiv.value.onPreview(index)
+}
+
 const imageQualities = [
   'original', 'large', 'medium', 'square_medium'
 ]
@@ -109,7 +130,12 @@ onMounted(() => {
   wm.ibd_list()
     .then(ibdls => { dbList.value = ibdls })
 })
-
+// 给预览组件传递【origin】图片链接
+const imageURLList_preview = computed((): Array<string> => {
+  if (detail.value === undefined) {
+    return [lazyimageURL]
+  } else { return detail.value.image_origin }
+})
 const imageURLList = computed((): Array<string> => {
   if (selectedImageQuality.value === undefined || detail.value === undefined) {
     return [lazyimageURL]
@@ -201,7 +227,7 @@ function handleBookmarkClick() {
             msg: `从 Pixiv 收藏删除 ${props.iid}`
           })
           bookmarkLoading.value = false
-          if(detail.value !== undefined){detail.value.is_bookmarked = false}
+          if (detail.value !== undefined) { detail.value.is_bookmarked = false }
         })
         .catch(() => { bookmarkLoading.value = false })
 
@@ -214,7 +240,7 @@ function handleBookmarkClick() {
             msg: `添加 ${props.iid} 到 Pixiv 收藏`
           })
           bookmarkLoading.value = false
-          if(detail.value !== undefined){detail.value.is_bookmarked = true}
+          if (detail.value !== undefined) { detail.value.is_bookmarked = true }
         })
         .catch(() => { bookmarkLoading.value = false })
     }

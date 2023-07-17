@@ -1,13 +1,15 @@
 <template>
-
-  <div class="row q-col-gutter-sm q-ma-sm">
+  <div class="row q-col-gutter-sm q-ma-sm" style="margin-top:50px">
     <RepoSync :repo-name="repoName" @refresh-cache="refreshCache = !refreshCache"
       @refresh-index="refreshIndex = !refreshIndex"></RepoSync>
-    <RepoBrowseCache :repo-name="repoName" :refresh="refreshCache"></RepoBrowseCache>
-    <RepoBrowseIndex :repo-name="repoName" :refresh="refreshIndex"
-      @refresh-cache="refreshCache = !refreshCache"></RepoBrowseIndex>
-  </div>
 
+    <RepoBrowseCache :repo-name="repoName" :refresh="refreshCache"></RepoBrowseCache>
+
+    <RepoBrowseIndex :repo-name="repoName" :refresh="refreshIndex" @refresh-cache="refreshCache = !refreshCache">
+    </RepoBrowseIndex>
+
+
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -25,7 +27,7 @@ const emits = defineEmits<{
 }>()
 
 onMounted(() => {
-  emits('updateTitle', props.repoName)
+  emits('updateTitle', '储存库：' + props.repoName)
 })
 
 const refreshCache = ref<boolean>(false)

@@ -1,14 +1,14 @@
 <template>
-  <q-scroll-area ref="scrollArea" :style="`padding-left: 0px; padding-right: 0px;`">
+  <q-scroll-area ref="scrollArea" :style="`padding-left: 0px; padding-right: 0px;margin-top:50px`">
     <div style="width: 100%; height: 100%;" class="q-mx-sm">
       <div>
         <div v-for="(item, i) in content" :key="i">
           <WahuCliItem v-bind="item"></WahuCliItem>
         </div>
       </div>
-      <q-input :model-value="cmdInp" @keyup.enter="enter" dense :prefix="inpPrefix" autofocus
-        class="cli-input" @keyup.up="previousHistory" @keyup.down="nextHistory"
-        :loading="loading" ref="inputBox" @update:model-value="handleInput">
+      <q-input :model-value="cmdInp" @keyup.enter="enter" dense :prefix="inpPrefix" autofocus class="cli-input"
+        @keyup.up="previousHistory" @keyup.down="nextHistory" :loading="loading" ref="inputBox"
+        @update:model-value="handleInput">
       </q-input>
       <pre v-show="cmdInp != '' && generator === undefined" class="text-grey-5">{{ ' ' + completions.join(' ') }}</pre>
       <div v-for="(his, i) in displayedHistory[0]" :key="i" v-show="historyPointer != -1">
@@ -84,7 +84,7 @@ function enter() {
 }
 
 function autoScroll() {
-  if(scrollArea.value !== null && inputBoxAnchor.value !== null) {
+  if (scrollArea.value !== null && inputBoxAnchor.value !== null) {
     setTimeout(() => {
       // @ts-ignore
       scrollArea.value.setScrollPosition('vertical', inputBoxAnchor.value.offsetTop, 300)
@@ -125,7 +125,7 @@ async function listenGenerator(initalSendVal?: string) {
   }
 }
 
-function lastOf<T>(arr: Array<T>) : T{
+function lastOf<T>(arr: Array<T>): T {
   return arr[arr.length - 1]
 }
 
@@ -135,33 +135,33 @@ function print(val: string | undefined) {
     const rewriteMatch = val.match(/\[:rewrite\].+/)
     const eraseMatch = val.match(/\[:erase\]/)
     if (imgMatch !== null) {
-      if(val.match(/\[:img=.+\].+/) !== null) {
+      if (val.match(/\[:img=.+\].+/) !== null) {
         content.value.push({
           src: imgMatch[0].slice(6, -1),
           text: val.slice(imgMatch[0].length)
         })
-      }else {
+      } else {
         content.value.push({
           src: imgMatch[0].slice(6, -1)
         })
       }
-    } else if(rewriteMatch !== null) {
+    } else if (rewriteMatch !== null) {
       const txt = val.slice(10)
-      if(lastOf(content.value).text !== null){
+      if (lastOf(content.value).text !== null) {
         lastOf(content.value).text = txt
-      }else{
-        content.value.push({text: txt})
+      } else {
+        content.value.push({ text: txt })
       }
-    } else if(eraseMatch !== null) {
+    } else if (eraseMatch !== null) {
       content.value.splice(content.value.length - 1, 1)
     } else {
-      if(val.startsWith('\n')) {
-        content.value.push({text: val.slice(1)})
-      }else{
-        if(lastOf(content.value).text !== undefined) {
+      if (val.startsWith('\n')) {
+        content.value.push({ text: val.slice(1) })
+      } else {
+        if (lastOf(content.value).text !== undefined) {
           lastOf(content.value).text += val
-        }else{
-          content.value.push({text: val})
+        } else {
+          content.value.push({ text: val })
         }
       }
     }
@@ -187,7 +187,7 @@ function nextHistory() {
 function previousHistory() {
   if (historyPointer.value > 0) {
     historyPointer.value -= 1
-  }else if(historyPointer.value = -1) {
+  } else if (historyPointer.value = -1) {
     historyPointer.value = matchedHistory.value.length - 1
   }
   cmdInp.value = matchedHistory.value[historyPointer.value]
@@ -199,27 +199,27 @@ function handleInput(val: string | number | null) {
   matchedHistory.value = Array.from(
     new Set(history.value.filter(val => val.startsWith(cmdInp.value)))
   )
-  if(historyPointer.value == -1) {
+  if (historyPointer.value == -1) {
     wahu_cli_complete(cmdInp.value)
       .then(ret => {
         completions.value = ret
       })
     autoScroll()
-  }else{
+  } else {
     historyPointer.value = -1
   }
 }
 
 const displayedHistory = computed(() => {
   const half = (displayedHistoryNum - 1) / 2
-  if(historyPointer.value <= half) {
+  if (historyPointer.value <= half) {
     return [matchedHistory.value.slice(0, displayedHistoryNum), historyPointer.value]
-  }else if(historyPointer.value >= matchedHistory.value.length - half) {
+  } else if (historyPointer.value >= matchedHistory.value.length - half) {
     return [matchedHistory.value.slice(
       matchedHistory.value.length - displayedHistoryNum
     ), historyPointer.value - matchedHistory.value.length + displayedHistoryNum
     ]
-  }else {
+  } else {
     return [matchedHistory.value.slice(
       historyPointer.value - half,
       historyPointer.value + half + 1
@@ -262,6 +262,7 @@ function handleSpecialCmd(cmd: string): boolean {
 .cli-input {
   font-family: monospace;
 }
+
 pre {
   margin-top: 0px;
   margin-bottom: 0px;

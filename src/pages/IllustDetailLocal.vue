@@ -1,22 +1,31 @@
 <template>
-  <q-card v-if="detail !== undefined" class="q-ma-sm">
+  <q-card v-if="detail !== undefined" class="q-ma-sm" style="margin-top:50px">
     <div class="q-ma-md">
       <span class="text-h4">{{ detail.title }}</span>
       <span class="text-h6 text-grey-8">
-        / iid = {{ detail.iid }} / dbName = {{ dbName }}
+        / iid = {{ detail.iid }} / 本地收藏夹 = {{ dbName }}
       </span>
     </div>
     <div class="q-mx-lg q-my-none text-subtitle-2 text-grey-8" v-if="addTimestamp !== undefined">
-      添加于 {{ new Date(addTimestamp*1000)}}  <!--Python 时间戳单位为秒，js 为毫秒-->
+      添加于 {{ new Date(addTimestamp).toLocaleString() }}
     </div>
 
     <div class="row justify-center">
       <div class="col-md-8 col-lg-7 col-sm-12 col-xs-12">
 
+        <!-- 图片 -->
         <IllustImagePages v-model="selectedPage" :db-name="dbName" :page-count="detail.page_count" :iid="iid"
-          :disabled="false">
+          :disabled="false" @onPreview_local="fun_onPreview_local">
         </IllustImagePages>
+
+        <!-- 图片预览组件 -->
+        <image-preview ref="imgPreviewRef_local" :width="400" :height="300" :zoomRatio="0.1" :minZoomScale="0.8"
+          resetOnDbclick :maxZoomScale="5" :src="imageURLList_url"> </image-preview>
+
+        <!-- 信息 -->
         <IllustInformation :detail="detail"></IllustInformation>
+
+        <!-- 描述 -->
         <illust-caption :detail="detail"></illust-caption>
 
       </div>
@@ -25,22 +34,24 @@
         <IllustTags :detail="detail" :db-name="dbName"></IllustTags>
         <PixivUserPanel :user="detail.user"></PixivUserPanel>
 
+        <!-- 调整： 这里不在空白标签页打开，改用预览组件 -->
         <q-card class="q-ma-sm">
-          <q-card-section>Pximg 服务器图片链接</q-card-section>
+          <q-card-section>Pximg 服务器图片链接：</q-card-section>
           <div v-for="imgURLPg in detail.image_large.length" :key="imgURLPg">
             <div class="text-body-1 text-grey-8 q-mx-md">页 {{ imgURLPg }}</div>
             <q-card-section>
               <div class="text-body-2">
-                <q-btn flat :href="serverImageURL + detail.image_origin[imgURLPg - 1]" target="_blank">
+                <!-- :href="serverImageURL + detail.image_origin[imgURLPg - 1]" target="blank" -->
+                <q-btn flat @click="fun_imageURLList_url(detail.image_origin[imgURLPg - 1])">
                   original
                 </q-btn>
-                <q-btn flat :href="serverImageURL + detail.image_large[imgURLPg - 1]" target="_blank">
+                <q-btn flat @click="fun_imageURLList_url(detail.image_large[imgURLPg - 1])">
                   large
                 </q-btn>
-                <q-btn flat :href="serverImageURL + detail.image_medium[imgURLPg - 1]" target="_blank">
+                <q-btn flat @click="fun_imageURLList_url(detail.image_medium[imgURLPg - 1])">
                   medium
                 </q-btn>
-                <q-btn flat :href="serverImageURL + detail.image_sqmedium[imgURLPg - 1]" target="_blank">
+                <q-btn flat @click="fun_imageURLList_url(detail.image_sqmedium[imgURLPg - 1])">
                   square_medium
                 </q-btn>
               </div>
@@ -91,6 +102,25 @@ import IllustCaption from 'src/components/IllustCaption.vue';
 import IllustTags from 'src/components/IllustTags.vue';
 import PixivUserPanel from 'src/components/PixivUserPanel.vue';
 import IllustImagePages from 'src/components/IllustImagePages.vue';
+
+import ImagePreview from 'src/components/ImagePreview.vue';
+
+// 点击 Pximg 服务器图片链接 按钮预览
+const imgPreviewRef_local = ref<any>(null)
+const imageURLList_url = ref('')
+const fun_imageURLList_url = (val: any) => {
+  imageURLList_url.value = serverImageURL + val
+  console.log('fun_imageURLList_url', val);
+  imgPreviewRef_local.value.onPreview()//打开预览组件
+}
+
+// 点击图片card预览
+const fun_onPreview_local = (src: string) => {
+  // 传递点击图片的索引
+  console.log('src_local:', src);
+  imageURLList_url.value = src
+  imgPreviewRef_local.value.onPreview()//打开预览组件
+}
 
 const props = defineProps<{
   dbName: string,

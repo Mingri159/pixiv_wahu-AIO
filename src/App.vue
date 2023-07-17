@@ -6,6 +6,12 @@
 import { defineComponent } from 'vue';
 
 export default defineComponent({
-  name: 'App'
+  name: 'App',
 });
 </script>
+<style>
+/* nav 底部阴影 */
+.q-layout__shadow {
+  display: none;
+}
+</style>

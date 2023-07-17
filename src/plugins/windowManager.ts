@@ -3,9 +3,9 @@ import { Router, useRouter } from 'vue-router'
 
 /** 自动生成 Interface Begin */
 interface AppWindow {
-    title?: string;
-    component: 'CliScriptView' | 'ErrorNotFound' | 'GetToken' | 'Home' | 'IllustDetailLocal' | 'IllustDetailPixiv' | 'IllustQueryLocal' | 'PixivSearchIllust' | 'PixivSearchUser' | 'PixivUserDetail' | 'RepoView' | 'TagRegression' | 'TrendingTags';
-    props?: object;
+  title?: string;
+  component: 'CliScriptView' | 'ErrorNotFound' | 'GetToken' | 'Home' | 'IllustDetailLocal' | 'IllustDetailPixiv' | 'IllustQueryLocal' | 'PixivSearchIllust' | 'PixivSearchUser' | 'PixivUserDetail' | 'RepoView' | 'TagRegression' | 'TrendingTags' | 'History' | 'PixivFavorite' | 'LocalFavorite';
+  props?: object;
 }
 /** 自动生成 Interface End */
 
@@ -25,16 +25,28 @@ function randomId() {
 }
 
 function gotoWindow(n: number): void {
-  if(n < openedWindows.value.length) {
+  if (n < openedWindows.value.length) {
     displayedWindowN.value = n
   }
 }
 
 function pushWindow(win: AppWindow, goto?: boolean): void {
-
   let keyedWin = { ...win, key: randomId(), scrollY: 0 }
-  openedWindows.value.push(keyedWin)
-  if (goto || goto === undefined) { gotoWindow(openedWindows.value.length - 1) }
+  // console.log('win', win);
+  // console.log('win.title', win.title);
+  // console.log('openedWindows.value', openedWindows.value);
+  // tab标签不重复
+  let index = openedWindows.value.findIndex(item => {
+    return item.title == win.title
+  })
+  // console.log('index', index);
+  if (index == -1) {
+    openedWindows.value.push(keyedWin)
+    if (goto || goto === undefined) { gotoWindow(openedWindows.value.length - 1) }
+  } else {
+    gotoWindow(index)
+  }
+  // console.log('openedWindows', openedWindows.value);
 }
 
 let router: Router

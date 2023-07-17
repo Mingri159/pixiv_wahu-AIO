@@ -2,31 +2,42 @@
   <transition appear enter-active-class="animated fadeInDown" leave-active-class="animated fadeOutUp">
     <q-card class="dl-card scroll" v-show="modelValue">
       <q-checkbox v-model="showFinished" label="显示已完成"></q-checkbox>
+      <!-- <span style="margin-left:50px">剩余任务：50</span> -->
       <q-markup-table>
         <thead>
-          <tr>
+          <tr align="center">
+            <th style="width:50px">索引</th>
+            <!-- <th style="width:100px">时间</th> -->
+            <!-- <th>iid</th>
+            <th>作者</th> -->
             <th>描述</th>
             <th>进度</th>
-            <th>状态</th>
+            <th style="width:50px">状态</th>
+            <!-- <th style="width:100px">操作</th> -->
           </tr>
         </thead>
         <tbody>
-          <tr v-for="dl in dlProgList" :key="dl.gid" v-show="dl.status != 'finished' || showFinished">
+          <tr v-for="dl, index in dlProgList" :key="dl.gid" v-show="dl.status != 'finished' || showFinished"
+            align="center">
+            <td>{{ index }}</td>
+            <!-- <td>YYYY-MM-DD hh-mm-ss</td> -->
+            <!-- <td>iid</td>
+            <td>author</td> -->
             <td>{{ dl.descript }}</td>
             <td>
               <q-linear-progress
-                :value="dl.total_size === null ? (dl.status == 'inprogress'?undefined:1):dl.downloaded_size / dl.total_size"
-                :color="getColor(dl.status)"
-                :indeterminate="dl.total_size === null && dl.status == 'inprogress'"
-              >
+                :value="dl.total_size === null ? (dl.status == 'inprogress' ? undefined : 1) : dl.downloaded_size / dl.total_size"
+                :color="getColor(dl.status)" :indeterminate="dl.total_size === null && dl.status == 'inprogress'">
               </q-linear-progress>
               <div class="text-body-2">
-                {{ (dl.downloaded_size / 1024).toFixed(0) }} / {{ dl.total_size === null ? '':(dl.total_size / 1024).toFixed(0) }} kb
+                {{ (dl.downloaded_size / 1024).toFixed(0) }} / {{ dl.total_size === null ? '' : (dl.total_size /
+                  1024).toFixed(0) }} kb
               </div>
             </td>
             <td>
               {{ statusStringFor(dl.status) }}
             </td>
+            <!-- <th>【】</th> -->
           </tr>
         </tbody>
       </q-markup-table>
@@ -75,7 +86,7 @@ function statusStringFor(val: string) {
 }
 
 function getColor(status: string) {
-  switch(status) {
+  switch (status) {
     case 'inprogress':
       return 'primary'
     case 'error':
@@ -92,12 +103,15 @@ function getColor(status: string) {
 <style scoped lang="scss">
 .dl-card {
   position: fixed;
+
   @media (min-width: $breakpoint-md-min) {
     width: 60vw;
   }
+
   @media (max-width: $breakpoint-sm-max) {
     width: 95vw;
   }
+
   min-width: 300px;
   right: 10px;
   top: 55px;
