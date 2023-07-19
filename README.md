@@ -1,11 +1,11 @@
 # pixiv_wahu-AIO详情
 
-说明：本项目修改自 [danzou1ge6/pixiv_wahu (github.com)](https://github.com/danzou1ge6/pixiv_wahu)
+**说明**：本项目修改自 [danzou1ge6/pixiv_wahu (github.com)](https://github.com/danzou1ge6/pixiv_wahu)
 
 - 介绍：[PixivWahu ， Pixiv 收藏管理工具](https://www.bilibili.com/read/cv17549666)
 - 获取 Pixiv **refresh_token**，参考：https://www.adunm.top/posts/dcedddd5/
 
-## 开发相关：
+## 开发相关
 
 - 安装python，[Download Python | Python.org](https://www.python.org/downloads/)
 - 安装 pip, pipenv：`python -m pip install pip==22.0.4 pipenv`
@@ -13,14 +13,14 @@
 - 安装Node.js，[Node.js (nodejs.org)](https://nodejs.org/en)
 - 安装前端依赖，` npm install`
 - 分别双击【start backend.bat】【start yarn quasar dev.sh】启动后端和前端；
+- 将`refresh_token`放在`dev_stuff`文件夹下，命名`refresh_token.txt`;
 
 ## 使用
 - 下载release压缩包；
-- 获取 Pixiv **refresh_token**；
-- 将`refresh_token`放在`dev_stuff`文件夹下，命名`refresh_token.txt`;
+- 将`refresh_token`放在`user`文件夹下，命名`refresh_token.txt`;
 
 ## 更新内容
-
+### `v0.1.0`
 - feat: 导航栏的**tab标签**不重复；
 - feat: 全屏、退出全屏；
 - feat: 插画**预览组件**；【0.8-5倍】缩放；
@@ -34,5 +34,4 @@
   > - 插画储存库 -> 本地储存库；
   > - 【搜索】【收藏】【推荐】【关注的画师】置于一级；
   > - 其他省略；
-
 - _此外，**浏览历史**原项目没有提供后端支持；_
