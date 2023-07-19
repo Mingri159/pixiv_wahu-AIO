@@ -29,7 +29,6 @@ jobs:
 
       - name: 打包前端
         run: |
-          yarn quasar build
           compress-archive -path dist/wahu_frontend -destinationpath dist/wahu_frontend.zip
 
       - uses: actions/upload-artifact@v3
