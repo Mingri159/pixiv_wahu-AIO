@@ -75,7 +75,11 @@ function updateAS() {
     })
 }
 
-onMounted(updateAS)
+// 自动登录
+// onMounted(updateAS)
+onMounted(() => {
+  if (accountSession.value === undefined) attemptLogin()
+})
 
 watch(props, () => {
   if (props.modelValue) { updateAS() }
