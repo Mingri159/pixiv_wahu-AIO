@@ -287,7 +287,7 @@ function onPreview(index: number = 0) {
   // 预览状态
   options_store.img_pre_state = false
   // 关闭侧边栏
-  settings_store.leftDrawerOpen = false
+  options_store.leftDrawerOpen = false
 }
 // 消除js加减精度问题的加法函数
 function add(num1: number, num2: number) {

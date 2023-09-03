@@ -4,7 +4,8 @@ dist_stuff = 'dist_stuff'
 [local]
 database_dir = '{$this}/databases'
 repos_file = '{$this}/repos.toml'
-file_name_template = '{0.title:} - {0.iid:}_{1:}'
+#{0.title:} - {0.iid:}_{1:}
+file_name_template = '{0.iid:}_{1:}'
 temp_download_dir = '{$this}/temp_dl'
 cli_script_dir = '{dist_stuff}/cli_script'
 tag_model_dir = '{$this}/tag_models'

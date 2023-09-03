@@ -8,10 +8,11 @@
           <tr align="center">
             <th style="width:50px">索引</th>
             <!-- <th style="width:100px">时间</th> -->
+            <!-- <th style="width:100px">repo</th> -->
             <!-- <th>iid</th>
             <th>作者</th> -->
-            <th>描述</th>
-            <th>进度</th>
+            <th style="width:200px">描述</th>
+            <th style="width:200px">进度</th>
             <th style="width:50px">状态</th>
             <!-- <th style="width:100px">操作</th> -->
           </tr>
@@ -21,6 +22,7 @@
             align="center">
             <td>{{ index }}</td>
             <!-- <td>YYYY-MM-DD hh-mm-ss</td> -->
+            <!-- <td>repo name</td> -->
             <!-- <td>iid</td>
             <td>author</td> -->
             <td>{{ dl.descript }}</td>
@@ -37,7 +39,10 @@
             <td>
               {{ statusStringFor(dl.status) }}
             </td>
-            <!-- <th>【】</th> -->
+            <!-- <th>
+              <q-btn v-if="dl.status === 'error'" color="secondary" label="重试" />
+              <span v-else>-</span>
+            </th> -->
           </tr>
         </tbody>
       </q-markup-table>
@@ -60,6 +65,12 @@ const showFinished = ref<boolean>(false)
 function listen() {
   wm.wahu_dl_status()
     .then(status => {
+      // console.log('dlProgList.value status:', status);
+      // descript : "106449882_0.png"
+      // downloaded_size : 4390912
+      // gid : "87jgalyp"
+      // status : "finished"
+      // total_size : 4390339
       dlProgList.value = status
     })
     .then(() => {

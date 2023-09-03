@@ -1,5 +1,7 @@
 <template>
-  <q-drawer v-model="modelValue" elevated overlay>
+  <!-- <q-drawer v-model="modelValue" elevated overlay> -->
+  <q-drawer v-model="options_store.leftDrawerOpen" elevated overlay>
+
     <q-scroll-area style="height: 100%">
 
       <q-list>
@@ -21,17 +23,28 @@
           <q-list>
             <div class="q-ml-lg">
               <!-- <q-item clickable v-ripple @click="clickDb('my_favourite')" style="margin-left: 50px;">
-                ❤ &nbsp; - &nbsp; <span>my_favourite</span>
-              </q-item> -->
+                ❤ &nbsp; - &nbsp; <span>my_favourite</span>              -->
               <q-item clickable v-for="dbn in dbNameList" :key="dbn" v-ripple style="margin-left: 50px;">
-                <q-item-section @click="clickDb(dbn)">
+                <q-item-section @click="clickDb(dbn)" @contextmenu.prevent="menuDb(dbn)">
                   ❤ &nbsp; - &nbsp; {{ dbn }}
+                  <q-menu context-menu v-show="dbn == record_dbn_show">
+                    <q-list style="min-width: 100px">
+                      <q-item clickable dense v-close-popup @click="updateSubscribe(dbn)">
+                        <q-item-section>同步订阅</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
                 </q-item-section>
-                <q-item-section side v-show="dbn !== 'my_favourite'">
+                <q-item-section side>
                   <q-btn icon="backspace" @click="showDelDbDiag = true; dbNameToDel = dbn" flat size="xs" padding="5px">
                     <q-tooltip>删除</q-tooltip>
                   </q-btn>
                 </q-item-section>
+                <!-- <q-item-section side v-show="dbn !== 'my_favourite'">
+                  <q-btn icon="backspace" @click="showDelDbDiag = true; dbNameToDel = dbn" flat size="xs" padding="5px">
+                    <q-tooltip>删除</q-tooltip>
+                  </q-btn>
+                </q-item-section> -->
               </q-item>
               <q-item clickable v-ripple style="margin-left: 45px;">
                 <q-item-section avatar>
@@ -100,11 +113,11 @@
         </q-expansion-item>
 
 
-        <q-item v-ripple clickable
+        <!-- <q-item v-ripple clickable
           @click="pushWindow({ component: 'History', title: '浏览历史' }); $emit('update:modelValue', false)">
           <q-item-section avatar><q-icon name="history"></q-icon></q-item-section>
           <q-item-section>浏览历史</q-item-section>
-        </q-item>
+        </q-item> -->
 
         <q-item v-ripple clickable
           @click="pushWindow({ component: 'TagRegression', title: '插画标签逻辑回归' }); $emit('update:modelValue', false)">
@@ -189,12 +202,15 @@
       </q-list>
     </q-scroll-area>
   </q-drawer>
+  <update-info ref="infoViewRef" :db-name="dbName_info"></update-info>
 </template>
 
 <script lang="ts">
 import * as wm from '../plugins/wahuBridge/methods'
 import { pushWindow } from 'src/plugins/windowManager'
 import { pushNoti } from 'src/plugins/notifications';
+import updateInfo from './updateInfo.vue'
+
 import { defineComponent, ref, watch, onMounted } from 'vue';
 import { useQuasar } from 'quasar';
 
@@ -202,6 +218,9 @@ import { useOptionsStore } from 'src/stores/options';
 const options_store = useOptionsStore();
 
 export default defineComponent({
+  components: {
+    updateInfo
+  },
   props: {
     modelValue: Boolean
   },
@@ -210,6 +229,7 @@ export default defineComponent({
 
     const newdb_show = ref(false)
     const newrepo_show = ref(false)
+    const scribe_menu_show = ref(false)
 
     const dbNameList = ref<Array<string>>([])
     const repoNameList = ref<Array<string>>([])
@@ -246,6 +266,12 @@ export default defineComponent({
         title: '本地收藏夹'
       }, true)
       emit('update:modelValue', false)
+      options_store.dbName = dbn
+    }
+
+    // 打开自定义右键菜单--更新订阅
+    function menuDb(dbn: string) {
+      record_dbn_show.value = dbn
       options_store.dbName = dbn
     }
 
@@ -359,11 +385,48 @@ export default defineComponent({
       newrepo_show.value = false
     }
 
+    const infoViewRef = ref<any>()
+    const dbName_info = ref()
+    const databaseConfig = ref<wm.IllustBookmarkingConfig>()
+
+    // contextmenu -> 更新订阅
+    async function updateSubscribe(dbName: string) {
+
+
+      wm.ibd_get_config(dbName)
+        .then(cfg => {
+          // console.log('cfg', cfg);
+          databaseConfig.value = cfg;
+          if (cfg.subscribe_overwrite == 'intelligent') {
+            options_store.showUpdateSubs = true
+            dbName_info.value = dbName
+
+            // 更新订阅   // 获取配置中更新页数
+            // -1：全部
+            // 其他
+            wm.ibd_update_subs(dbName, cfg.subscribe_pages)
+              .then(infoViewRef.value.consumePipedInfo)
+            options_store.updateSubsLoading = true
+
+          } else {
+            pushNoti({
+              level: 'error',
+              msg: `当前模式为【 ${cfg.subscribe_overwrite}】，请切换为【intelligent】`
+            })
+          }
+        })
+    }
+
+    const record_dbn_show = ref('')
+
+
     return {
       dbNameList, updateContent, clickDb, newDbName, newDb,
       showDelDbDiag, deleteDb, showDelRpDiag, repoNameToDel, clickRepo,
       deleteRepo, newRepoName, newRepoInputError, newRepoPrefix, newRepo,
-      pushWindow, repoNameList, newDbInputError, dbNameToDel, options_store, newdb_show, newrepo_show
+      pushWindow, repoNameList, newDbInputError, dbNameToDel, options_store,
+      newdb_show, newrepo_show, scribe_menu_show,
+      updateSubscribe, dbName_info, infoViewRef, updateInfo, record_dbn_show, menuDb, databaseConfig
     }
   }
 })

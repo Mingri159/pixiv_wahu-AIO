@@ -113,7 +113,7 @@ interface FileEntryWithURL {
 }
 
 interface DownloadProgress {
-
+    // repo_name: string | null;
     gid: string;
     total_size: number | null;
     downloaded_size: number;

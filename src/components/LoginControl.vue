@@ -78,7 +78,9 @@ function updateAS() {
 // 自动登录
 // onMounted(updateAS)
 onMounted(() => {
+  // console.log('accountSession.value:', accountSession.value);
   if (accountSession.value === undefined) attemptLogin()
+  // updateAS()
 })
 
 watch(props, () => {
@@ -88,6 +90,7 @@ watch(props, () => {
 const showDialog = ref<boolean>(false)
 const loginExcep = ref<WahuBackendException>()
 
+// 登录
 function attemptLogin() {
   loginLoading.value = true
   wm.p_attempt_login()

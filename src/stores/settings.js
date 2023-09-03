@@ -11,7 +11,7 @@ export const useSettingsStore = defineStore('settings', {
         // save_route: '',
         // auto_sync: false,
         user_id: 0, //用户id
-        leftDrawerOpen: false,//左侧边栏
+        // leftDrawerOpen: false,//左侧边栏
     }
 
     ),

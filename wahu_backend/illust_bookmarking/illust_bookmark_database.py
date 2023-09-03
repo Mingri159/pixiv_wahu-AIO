@@ -44,57 +44,65 @@ async def alist_illusts_piped(
     - `:param count:` 提取的最大元素数量, -1 表示耗尽
     """
     def add_to(illusts: list[IllustDetail]):
+        # print('illusts\n', illusts)
         ibd.illusts_te.insert(illusts)
         # ibd.bookmarks_te.insert( [IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time()) for ilst in illusts]  )
         for ilst in reversed(illusts):
-            # print(                f'list bookmark:{[IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time())]}')
+            # print(f'list bookmark:{[IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time())]}')
             ibd.bookmarks_te.insert(
                 [IllustBookmark(ilst.iid, list(range(ilst.page_count)), t_time())])
 
         global index_page
-        index_page += 1  # 显示序号
+        index_page += 1  # 显示页码
         pipe.output(
             '\n'.join([f"{(index_page-1)*30+illusts.index(ilst)+1}-{index_page}-{illusts.index(ilst)+1}、[{ilst.iid}] - {ilst.title}" for ilst in illusts]))
         time.sleep(0.05)
 
     try:
         g_re = []
-        if intelligent:
+        if intelligent:  # 覆写模式：intelligent
             pipe.output(f'🚀覆写模式：intelligent')
             g_re = []
             async for item1 in g:
-                # print(f'intelligent item:{item}')
-                # print(f'type g:{type(g)}')  # g: <class 'async_generator'>
-                # print(f'type item:{type(item)}') # item: <class 'list'>
-                # print(f'--> {all((ibd.query_detail(ilst.iid) != None for ilst in item))}')
+                # for ilst in item1:
+                #     print('-', ibd.query_detail(ilst.iid))
+
                 if all((ibd.query_detail(ilst.iid) != None for ilst in item1)):
+                    # 每获取一页数据后，与本地数据库比对，当这一页内含有本地的iid，则不再获取下一页数据
+                    # 然后将获取到的数据保存在本地数据库
+                    # 若是第一次使用，需要先【append】模式，获取数据，不然因为本地数据库内容为空，【intelligent】模式不能有效判断
                     if len(g_re):
+                        pipe.output(f'------------------------')
+                        pipe.output(f'🐇请稍后，正在保存数据...')
                         for item2 in reversed(g_re):
                             add_to(item2)
-
                     raise StopAsyncIteration
                 else:
                     g_re.append(item1)
-                    pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
+                    pipe.output(f'已获取数据：---> 第{len(g_re)}页...')
 
-        elif count == -1:
-            pipe.output(f'🚀更新页数：---> 不限页数...')
+        elif count == -1:  # 覆写模式：replace
+            pipe.output(f'🚀【replace】，更新页数：---> 不限页数...')
             g_re = []
             async for item1 in g:
                 g_re.append(item1)
-                pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
+                pipe.output(f'已获取数据：---> 第{len(g_re)}页...')
+            pipe.output(f'------------------------')
+            pipe.output(f'🐇请稍后，正在保存数据...')
             for item2 in reversed(g_re):
                 add_to(item2)
+            # raise StopAsyncIteration
 
-        else:
-            pipe.output(f'🚀更新页数：---> {count}页...')
+        elif count >= 0:  # 覆写模式：append
+            pipe.output(f'🚀【append】，更新页数：--->共 {count}页...')
             i = 0
             g_re = []
             async for item1 in g:
                 g_re.append(item1)
-                pipe.output(f'正在获取数据：---> 第{len(g_re)}页...')
+                pipe.output(f'已获取数据：---> 第{len(g_re)}页...')
                 i += 1
                 if i == count:
+                    pipe.output(f'🐇请稍后，正在保存数据...')
                     for item2 in reversed(g_re):
                         add_to(item2)
                     raise StopAsyncIteration

@@ -7,18 +7,15 @@
           <q-item-section avatar><q-icon name="settings"></q-icon></q-item-section>
           <q-item-section>配置</q-item-section>
         </q-item>
-        <q-item clickable v-close-popup @click="updateSubscribe" :loading="updateSubsLoading">
+        <q-item clickable v-close-popup @click="updateSubscribe" :loading="options_store.updateSubsLoading">
           <q-item-section avatar><q-icon name="sync"></q-icon></q-item-section>
           <q-item-section>更新订阅</q-item-section>
         </q-item>
-        <q-item clickable v-close-popup @click="showUpdateSubs = !showUpdateSubs" :loading="updateSubsLoading">
+        <q-item clickable v-close-popup @click="options_store.showUpdateSubs = !options_store.showUpdateSubs"
+          :loading="options_store.updateSubsLoading">
           <q-item-section avatar><q-icon name="history"></q-icon></q-item-section>
           <q-item-section>订阅记录</q-item-section>
         </q-item>
-        <!-- <q-item clickable @click="update">
-          <q-item-section avatar><q-icon name="update"></q-icon></q-item-section>
-          <q-item-section>更新详情</q-item-section>
-        </q-item> -->
         <q-item clickable @click="exportJson">
           <q-item-section avatar><q-icon name="file_upload"></q-icon></q-item-section>
           <q-item-section>导出 JSON</q-item-section>
@@ -40,27 +37,18 @@
 
     <DatabaseConfig v-model="showConfig" :db-name="dbName"></DatabaseConfig>
 
-    <!-- @hide="settings_store.updateSubSInfo = '更新订阅..\n'" -->
-    <q-dialog v-model="showUpdateSubs">
-      <q-card style="width: 700px; max-width: 80vw;">
-        <q-card-section><q-linear-progress :indeterminate="updateSubsLoading"></q-linear-progress></q-card-section>
-        <q-card-section>
-          <q-scroll-area style="height: 650px;" ref="infoScroller">
-            <pre class="q-ma-md">{{ updateSubSInfo }}</pre>
-          </q-scroll-area>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
 
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import * as wm from '../plugins/wahuBridge/methods'
 import { pushNoti } from '../plugins/notifications';
-import DatabaseConfig from 'src/components/DatabaseConfig.vue';
-import { QScrollArea } from 'quasar';
+import DatabaseConfig from './DatabaseConfig.vue';
+
+import { useOptionsStore } from 'src/stores/options';
+const options_store = useOptionsStore();
 
 const props = defineProps<{
   dbName: string,
@@ -72,34 +60,12 @@ const emits = defineEmits<{
 }>()
 
 const showConfig = ref<boolean>(false)
-const showUpdateSubs = ref<boolean>(false)
-// const updateSubsPageCount = ref<number>(-1)
-const updateSubSInfo = ref<string>('更新订阅..\n')
-
-const infoScroller = ref<QScrollArea | null>(null)
 
 const jsonUpload = ref<File>()
 
-const updateSubsLoading = ref<boolean>(false)
-
-async function consumePipedInfo(pipe: AsyncGenerator<string, undefined, string | null>) {
-  while (true) {
-    let value = await pipe.next()
-    updateSubSInfo.value += '\n' + value.value; //更新信息窗口
-
-    if (infoScroller.value != null)
-      infoScroller.value.setScrollPercentage('vertical', 1, 0.1)
-    if (value.done) {
-      updateSubsLoading.value = false
-      emits('updateSubscrip')
-      emits('updateNum', props.dbName)
-      return
-    }
-  }
-}
 
 function updateSubscribe() {
-  showUpdateSubs.value = true
+  options_store.showUpdateSubs = true
 
   // 获取配置中更新页数
   wm.ibd_get_config(props.dbName)
@@ -109,8 +75,25 @@ function updateSubscribe() {
         .then(consumePipedInfo)
     })
 
-  updateSubsLoading.value = true
+  options_store.updateSubsLoading = true
 
+}
+
+async function consumePipedInfo(pipe: AsyncGenerator<string, undefined, string | null>) {
+
+  while (true) {
+    let value = await pipe.next()
+    console.log(value.value);//控制台显示信息
+    options_store.updateSubSInfo += '\n' + value.value; //更新信息窗口
+
+    if (value.done) {
+      options_store.updateSubsLoading = false
+      emits('updateSubscrip')
+      // emits('updateNum', props.dbName)
+      emits('updateNum', options_store.dbName)
+      return
+    }
+  }
 }
 
 const objURLForExport = ref<string>()
@@ -144,15 +127,5 @@ function handleJsonUpload(f: File) {
     }
   }
 }
-
-// function update() {
-//   wm.ibd_update(props.dbName)
-//     .then(num => {
-//       pushNoti({
-//         level: 'success',
-//         msg: `更新了 ${props.dbName} 的 ${num} 条详情`
-//       })
-//     })
-// }
 
 </script>

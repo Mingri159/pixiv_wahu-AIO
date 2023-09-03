@@ -17,7 +17,7 @@
 
         <q-toolbar>
           <!-- <q-btn flat dense round icon="menu" @click="leftDrawerOpen = !leftDrawerOpen" /> -->
-          <q-btn flat dense round icon="menu" @click="settings_store.leftDrawerOpen = !settings_store.leftDrawerOpen" />
+          <q-btn flat dense round icon="menu" @click="options_store.leftDrawerOpen = !options_store.leftDrawerOpen" />
 
           <q-toolbar-title>
             PixivWahu
@@ -67,7 +67,7 @@
 
     <!-- 左侧边栏 v-model="leftDrawerOpen   v-show="options_store.leftDrawerOpen"" -->
     <!-- <NavDrawerContent v-model="leftDrawerOpen"> </NavDrawerContent> -->
-    <NavDrawerContent v-model="settings_store.leftDrawerOpen"> </NavDrawerContent>
+    <NavDrawerContent v-model="options_store.leftDrawerOpen"> </NavDrawerContent>
 
     <!--主窗口页面 -->
     <q-page-container-container>
@@ -118,7 +118,6 @@ export default defineComponent({
   },
 
   setup() {
-    // const leftDrawerOpen = ref(false)
 
     const showNotification = ref(false)
     const showLoginCtl = ref(false)
@@ -177,6 +176,8 @@ export default defineComponent({
 </script>
 
 <style lang="scss" scoped>
+// .q-header {   z-index: 9999}
+
 .blur {
   backdrop-filter: blur(7px);
 }
